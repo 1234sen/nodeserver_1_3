@@ -34,12 +34,12 @@ mongoose.connection.on('error', (err) => {
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false, // 强制保存未修改的会话
-  saveUninitialized: true, // 保存未初始化的会话
-  // store: new FileStore(),
+  saveUninitialized: false, // 保存未初始化的会话
+//store: new FileStore(),
   cookie: {
     secure: false, // 开发环境
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60 * 1000,
     domain: process.env.NODE_ENV === 'development' ?
       'localhost' : process.env.NODE_SERVER_DOMAIN
@@ -59,12 +59,27 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 const app = express();
+
+const allowedOrigins = [
+  "https://wonderful-paprenjak-03e135.netlify.app",
+  "https://eatwhite-a6.netlify.app",
+  "http://localhost:5173",
+  "http://localhost:4173",
+  
+];
+
 app.use(session(sessionOptions));
 app.use(
   cors({
     credentials: true,
-    origin: process.env.NETLIFY_URL || "http://localhost:5173",
-    exposedHeaders: ['set-cookie'] // 新增暴露set-cookie头
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    exposedHeaders: ["set-cookie"], // 新增暴露set-cookie头
   })
 );
 
