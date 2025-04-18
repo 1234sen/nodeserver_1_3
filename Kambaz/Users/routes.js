@@ -67,7 +67,7 @@ export default function UserRoutes(app) {
       req.session.currentUser = currentUser;
 
       req.session.cookie.secure = false; // 开发环境使用http
-      req.session.cookie.sameSite = "lax";
+      req.session.cookie.sameSite = "none";
       req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30天
 
       req.session.save(err => {
